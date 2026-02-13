@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes ping-pong-bounce {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-30px) translateX(25px);
+  }
+  50% {
+    transform: translateY(0) translateX(50px);
+  }
+  75% {
+    transform: translateY(-30px) translateX(75px);
+  }
+}
+
+@keyframes corner-bounce {
+  0% {
+    top: 10%;
+    left: 5%;
+  }
+  25% {
+    top: 15%;
+    left: 95%;
+  }
+  50% {
+    top: 85%;
+    left: 90%;
+  }
+  75% {
+    top: 80%;
+    left: 10%;
+  }
+  100% {
+    top: 10%;
+    left: 5%;
+  }
+}
+
+@keyframes ping-pong-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes paddle-swing {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes ball-trail {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+.ping-pong-ball {
+  animation: ping-pong-bounce 3s ease-in-out infinite;
+}
+
+.ping-pong-spin {
+  animation: ping-pong-spin 2s linear infinite;
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+.paddle-animation {
+  animation: paddle-swing 1.5s ease-in-out infinite;
+}
+
+.corner-bounce-ball {
+  animation: corner-bounce 4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  position: absolute;
+}
