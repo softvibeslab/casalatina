@@ -72,11 +72,11 @@ function AppContent() {
             <h3 className="text-2xl font-bold mb-2">Casa Latina Ping Pong Club</h3>
             <p className="text-blue-100 mb-4">San Cristóbal de las Casas, Chiapas</p>
             <div className="flex justify-center items-center space-x-2 text-blue-200">
-              <span className="text-chiapas-orange font-semibold">Ping Pong</span>
+              <span className="text-chiapas-jade font-semibold">Ping Pong</span>
               <span>•</span>
-              <span className="text-chiapas-jade font-semibold">Música</span>
+              <span className="text-chiapas-teal font-semibold">Música</span>
               <span>•</span>
-              <span className="text-chiapas-teal font-semibold">Arte</span>
+              <span className="text-white font-semibold">Arte</span>
             </div>
           </div>
         </div>

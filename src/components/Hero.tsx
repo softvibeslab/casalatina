@@ -9,7 +9,7 @@ export function Hero({ onJoinClick }: HeroProps) {
     <div className="relative bg-gradient-to-br from-chiapas-blue via-chiapas-blue-dark to-chiapas-blue-light text-white overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: 'url(/631451116_895857566531489_7045700058287128536_n.jpg)' }}
+        style={{ backgroundImage: 'url(/631431591_893588813425031_5944325923659499527_n_copy.jpg)' }}
       ></div>
 
       <div className="absolute inset-0 bg-gradient-to-br from-chiapas-blue/90 via-chiapas-blue-dark/85 to-chiapas-blue-light/80"></div>
@@ -21,11 +21,65 @@ export function Hero({ onJoinClick }: HeroProps) {
       </div>
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="w-8 h-8 bg-white rounded-full opacity-90 shadow-2xl corner-bounce-ball ping-pong-spin"></div>
-        <div className="w-7 h-7 bg-chiapas-orange rounded-full opacity-80 shadow-xl corner-bounce-ball ping-pong-spin" style={{ animationDelay: '1s' }}></div>
-        <div className="w-6 h-6 bg-chiapas-yellow rounded-full opacity-75 shadow-lg float-animation" style={{ animationDelay: '0.5s', top: '20%', left: '30%' }}></div>
-        <div className="w-5 h-5 bg-white rounded-full opacity-60 float-animation" style={{ animationDelay: '2s', top: '70%', left: '70%' }}></div>
+        <div className="w-8 h-8 bg-white rounded-full opacity-90 shadow-2xl ping-pong-left-to-right" style={{ top: '30%' }}></div>
+        <div className="w-8 h-8 bg-white rounded-full opacity-85 shadow-2xl ping-pong-right-to-left" style={{ top: '50%', animationDelay: '2s' }}></div>
+        <div className="w-7 h-7 bg-white rounded-full opacity-80 shadow-xl ping-pong-left-to-right" style={{ top: '65%', animationDelay: '1s' }}></div>
+        <div className="w-7 h-7 bg-white rounded-full opacity-75 shadow-xl ping-pong-right-to-left" style={{ top: '40%', animationDelay: '3.5s' }}></div>
       </div>
+
+      <style>{`
+        @keyframes ping-pong-left-to-right {
+          0% {
+            left: -50px;
+            transform: translateY(0) scale(1);
+          }
+          25% {
+            transform: translateY(-30px) scale(1.2);
+          }
+          50% {
+            transform: translateY(-10px) scale(1);
+          }
+          75% {
+            transform: translateY(-40px) scale(1.3);
+          }
+          100% {
+            left: calc(100% + 50px);
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes ping-pong-right-to-left {
+          0% {
+            right: -50px;
+            left: auto;
+            transform: translateY(0) scale(1);
+          }
+          25% {
+            transform: translateY(-35px) scale(1.2);
+          }
+          50% {
+            transform: translateY(-15px) scale(1);
+          }
+          75% {
+            transform: translateY(-45px) scale(1.3);
+          }
+          100% {
+            right: calc(100% + 50px);
+            left: auto;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        .ping-pong-left-to-right {
+          position: absolute;
+          animation: ping-pong-left-to-right 4s linear infinite;
+        }
+
+        .ping-pong-right-to-left {
+          position: absolute;
+          animation: ping-pong-right-to-left 4s linear infinite;
+        }
+      `}</style>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center">
@@ -42,7 +96,7 @@ export function Hero({ onJoinClick }: HeroProps) {
           <h1 className="text-5xl md:text-7xl font-bold mb-4 drop-shadow-2xl text-white">
             Casa Latina
           </h1>
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 drop-shadow-xl text-chiapas-orange">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 drop-shadow-xl text-chiapas-jade">
             Ping Pong Club
           </h2>
 
@@ -63,7 +117,7 @@ export function Hero({ onJoinClick }: HeroProps) {
               <Calendar className="h-5 w-5" />
               <span className="font-semibold">Martes, Miércoles, Jueves</span>
             </div>
-            <div className="flex items-center space-x-2 bg-chiapas-orange/90 backdrop-blur-sm px-6 py-3 rounded-full shadow-lg transform hover:scale-105 transition-transform">
+            <div className="flex items-center space-x-2 bg-chiapas-jade/90 backdrop-blur-sm px-6 py-3 rounded-full shadow-lg transform hover:scale-105 transition-transform">
               <Music className="h-5 w-5" />
               <span className="font-semibold">Música en Vivo</span>
             </div>
@@ -78,7 +132,7 @@ export function Hero({ onJoinClick }: HeroProps) {
             </button>
             <button
               onClick={() => document.getElementById('events')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-transparent border-2 border-chiapas-orange text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-chiapas-orange/20 transition-all shadow-xl"
+              className="bg-transparent border-2 border-chiapas-jade text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-chiapas-jade/20 transition-all shadow-xl"
             >
               Ver Eventos
             </button>
