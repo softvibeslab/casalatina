@@ -79,62 +79,73 @@ export function Hero({ onJoinClick }: HeroProps) {
           transform: translateY(-50%);
         }
 
-        @keyframes bounce-ball {
+        @keyframes horizontal-bounce {
           0% {
-            left: 10%;
-            top: 10%;
-            transform: scale(1);
+            left: -30px;
+            top: calc(50% - 10px);
+          }
+          12.5% {
+            left: 12.5%;
+            top: calc(50% - 25px);
           }
           25% {
-            left: 90%;
-            top: 10%;
-            transform: scale(1.3);
+            left: 25%;
+            top: calc(50% - 10px);
+          }
+          37.5% {
+            left: 37.5%;
+            top: calc(50% - 25px);
           }
           50% {
-            left: 90%;
-            top: 85%;
-            transform: scale(1);
+            left: 50%;
+            top: calc(50% - 10px);
+          }
+          62.5% {
+            left: 62.5%;
+            top: calc(50% - 25px);
           }
           75% {
-            left: 10%;
-            top: 85%;
-            transform: scale(1.3);
+            left: 75%;
+            top: calc(50% - 10px);
+          }
+          87.5% {
+            left: 87.5%;
+            top: calc(50% - 25px);
           }
           100% {
-            left: 10%;
-            top: 10%;
-            transform: scale(1);
+            left: calc(100% + 30px);
+            top: calc(50% - 10px);
           }
         }
 
         .ping-pong-ball {
           position: absolute;
-          width: 20px;
-          height: 20px;
-          background: radial-gradient(circle at 30% 30%, #ffffff, #f0f0f0, #e0e0e0);
+          width: 22px;
+          height: 22px;
+          background: radial-gradient(circle at 35% 35%, #ffffff, #fafafa, #f5f5f5);
           border-radius: 50%;
+          border: 1px solid rgba(255, 255, 255, 0.9);
           box-shadow:
-            0 5px 15px rgba(0, 0, 0, 0.3),
-            inset -2px -2px 5px rgba(0, 0, 0, 0.2),
-            0 0 20px rgba(255, 255, 255, 0.8);
-          animation: bounce-ball 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+            0 2px 8px rgba(0, 0, 0, 0.2),
+            inset -1px -1px 3px rgba(0, 0, 0, 0.1),
+            0 0 12px rgba(255, 255, 255, 0.6);
+          animation: horizontal-bounce 4s linear infinite;
+          will-change: transform, left, top;
         }
 
         .ball-1 {
           animation-delay: 0s;
-          animation-duration: 3s;
+          top: 30%;
         }
 
         .ball-2 {
-          animation-delay: 1s;
-          animation-duration: 3.5s;
+          animation-delay: 1.33s;
+          top: 50%;
         }
 
         .ball-3 {
-          animation-delay: 2s;
-          animation-duration: 2.8s;
-          width: 18px;
-          height: 18px;
+          animation-delay: 2.66s;
+          top: 65%;
         }
       `}</style>
 
