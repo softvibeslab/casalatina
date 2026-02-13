@@ -6,148 +6,15 @@ interface HeroProps {
 
 export function Hero({ onJoinClick }: HeroProps) {
   return (
-    <div className="relative text-white overflow-hidden" style={{ background: 'linear-gradient(to bottom, #0a1128 0%, #001f54 50%, #0a1128 100%)' }}>
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-400 rounded-full blur-3xl"></div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-400 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 left-1/3 w-64 h-64 bg-teal-400 rounded-full blur-3xl"></div>
-      </div>
+    <div className="relative text-white overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: 'url(/Gemini_Generated_Image_m46hiwm46hiwm46h.png)',
+        }}
+      />
 
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 flex items-center justify-center" style={{ perspective: '1000px' }}>
-          <div className="ping-pong-table">
-            <div className="table-surface"></div>
-            <div className="table-net"></div>
-            <div className="table-line"></div>
-          </div>
-        </div>
-      </div>
-
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="ping-pong-ball ball-1"></div>
-        <div className="ping-pong-ball ball-2"></div>
-        <div className="ping-pong-ball ball-3"></div>
-      </div>
-
-      <style>{`
-        .ping-pong-table {
-          position: relative;
-          width: 80%;
-          max-width: 900px;
-          height: 400px;
-          transform: rotateX(60deg) rotateZ(0deg);
-          transform-style: preserve-3d;
-          opacity: 0.15;
-        }
-
-        .table-surface {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #0ea5e9 100%);
-          border: 8px solid #fff;
-          box-shadow:
-            0 20px 60px rgba(6, 182, 212, 0.4),
-            inset 0 0 40px rgba(255, 255, 255, 0.1);
-          border-radius: 8px;
-        }
-
-        .table-net {
-          position: absolute;
-          top: 50%;
-          left: 0;
-          width: 100%;
-          height: 60px;
-          background: linear-gradient(to bottom,
-            transparent 0%,
-            rgba(255, 255, 255, 0.9) 10%,
-            rgba(255, 255, 255, 0.9) 90%,
-            transparent 100%
-          );
-          transform: translateY(-50%) translateZ(30px);
-          border-top: 3px solid #fff;
-          border-bottom: 3px solid #fff;
-        }
-
-        .table-line {
-          position: absolute;
-          top: 50%;
-          left: 0;
-          width: 100%;
-          height: 3px;
-          background: white;
-          transform: translateY(-50%);
-        }
-
-        @keyframes horizontal-bounce {
-          0% {
-            left: -30px;
-            top: calc(50% - 10px);
-          }
-          12.5% {
-            left: 12.5%;
-            top: calc(50% - 25px);
-          }
-          25% {
-            left: 25%;
-            top: calc(50% - 10px);
-          }
-          37.5% {
-            left: 37.5%;
-            top: calc(50% - 25px);
-          }
-          50% {
-            left: 50%;
-            top: calc(50% - 10px);
-          }
-          62.5% {
-            left: 62.5%;
-            top: calc(50% - 25px);
-          }
-          75% {
-            left: 75%;
-            top: calc(50% - 10px);
-          }
-          87.5% {
-            left: 87.5%;
-            top: calc(50% - 25px);
-          }
-          100% {
-            left: calc(100% + 30px);
-            top: calc(50% - 10px);
-          }
-        }
-
-        .ping-pong-ball {
-          position: absolute;
-          width: 22px;
-          height: 22px;
-          background: radial-gradient(circle at 35% 35%, #ffffff, #fafafa, #f5f5f5);
-          border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.9);
-          box-shadow:
-            0 2px 8px rgba(0, 0, 0, 0.2),
-            inset -1px -1px 3px rgba(0, 0, 0, 0.1),
-            0 0 12px rgba(255, 255, 255, 0.6);
-          animation: horizontal-bounce 4s linear infinite;
-          will-change: transform, left, top;
-        }
-
-        .ball-1 {
-          animation-delay: 0s;
-          top: 30%;
-        }
-
-        .ball-2 {
-          animation-delay: 1.33s;
-          top: 50%;
-        }
-
-        .ball-3 {
-          animation-delay: 2.66s;
-          top: 65%;
-        }
-      `}</style>
+      <div className="absolute inset-0 bg-black/50" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center">
@@ -161,18 +28,18 @@ export function Hero({ onJoinClick }: HeroProps) {
             </div>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 drop-shadow-2xl text-white">
+          <h1 className="text-5xl md:text-7xl font-bold mb-4 text-white" style={{ textShadow: '0 4px 12px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.6)' }}>
             Casa Latina
           </h1>
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 drop-shadow-xl text-chiapas-jade">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-chiapas-jade" style={{ textShadow: '0 4px 10px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.6)' }}>
             Ping Pong Club
           </h2>
 
-          <p className="text-xl md:text-2xl mb-6 max-w-3xl mx-auto leading-relaxed font-medium">
+          <p className="text-xl md:text-2xl mb-6 max-w-3xl mx-auto leading-relaxed font-medium" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)' }}>
             Ping Pong · Música · Arte · Comunidad
           </p>
 
-          <p className="text-lg md:text-xl mb-10 max-w-2xl mx-auto text-blue-100">
+          <p className="text-lg md:text-xl mb-10 max-w-2xl mx-auto text-white" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)' }}>
             Únete al mejor club de ping pong en San Cristóbal de las Casas
           </p>
 
