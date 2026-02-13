@@ -28,8 +28,15 @@ export function Navbar({ onNavigate, currentSection }: NavbarProps) {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-chiapas-blue via-chiapas-blue-dark to-chiapas-blue-light shadow-lg sticky top-0 z-50 border-b-2 border-chiapas-jade">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="relative shadow-lg sticky top-0 z-50 border-b-2 border-chiapas-jade">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: 'url(/header.png)',
+        }}
+      />
+      <div className="absolute inset-0 bg-black/40" />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div
             className="flex items-center space-x-3 cursor-pointer"
@@ -94,8 +101,15 @@ export function Navbar({ onNavigate, currentSection }: NavbarProps) {
       </div>
 
       {isOpen && (
-        <div className="md:hidden bg-chiapas-blue-dark">
-          <div className="px-2 pt-2 pb-3 space-y-1">
+        <div className="md:hidden relative">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: 'url(/header.png)',
+            }}
+          />
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (

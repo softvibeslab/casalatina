@@ -59,8 +59,15 @@ function AppContent() {
 
       {currentSection === 'admin' && <AdminDashboard />}
 
-      <footer className="bg-gradient-to-r from-chiapas-blue-dark via-chiapas-blue to-chiapas-blue-light text-white py-8 mt-16 border-t-4 border-chiapas-jade">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <footer className="relative text-white py-8 mt-16 border-t-4 border-chiapas-jade">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: 'url(/footer.png)',
+          }}
+        />
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex justify-center mb-3">
               <img
