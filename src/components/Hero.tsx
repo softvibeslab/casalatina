@@ -6,78 +6,135 @@ interface HeroProps {
 
 export function Hero({ onJoinClick }: HeroProps) {
   return (
-    <div className="relative bg-gradient-to-br from-chiapas-blue via-chiapas-blue-dark to-chiapas-blue-light text-white overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: 'url(/631431591_893588813425031_5944325923659499527_n_copy.jpg)' }}
-      ></div>
-
-      <div className="absolute inset-0 bg-gradient-to-br from-chiapas-blue/90 via-chiapas-blue-dark/85 to-chiapas-blue-light/80"></div>
-
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-chiapas-jade rounded-full blur-3xl"></div>
-        <div className="absolute bottom-40 right-20 w-40 h-40 bg-chiapas-orange rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-chiapas-teal rounded-full blur-3xl"></div>
+    <div className="relative text-white overflow-hidden" style={{ background: 'linear-gradient(to bottom, #0a1128 0%, #001f54 50%, #0a1128 100%)' }}>
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-400 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-400 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-1/3 w-64 h-64 bg-teal-400 rounded-full blur-3xl"></div>
       </div>
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="w-8 h-8 bg-white rounded-full opacity-90 shadow-2xl ping-pong-left-to-right" style={{ top: '30%' }}></div>
-        <div className="w-8 h-8 bg-white rounded-full opacity-85 shadow-2xl ping-pong-right-to-left" style={{ top: '50%', animationDelay: '2s' }}></div>
-        <div className="w-7 h-7 bg-white rounded-full opacity-80 shadow-xl ping-pong-left-to-right" style={{ top: '65%', animationDelay: '1s' }}></div>
-        <div className="w-7 h-7 bg-white rounded-full opacity-75 shadow-xl ping-pong-right-to-left" style={{ top: '40%', animationDelay: '3.5s' }}></div>
+        <div className="absolute inset-0 flex items-center justify-center" style={{ perspective: '1000px' }}>
+          <div className="ping-pong-table">
+            <div className="table-surface"></div>
+            <div className="table-net"></div>
+            <div className="table-line"></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="ping-pong-ball ball-1"></div>
+        <div className="ping-pong-ball ball-2"></div>
+        <div className="ping-pong-ball ball-3"></div>
       </div>
 
       <style>{`
-        @keyframes ping-pong-left-to-right {
+        .ping-pong-table {
+          position: relative;
+          width: 80%;
+          max-width: 900px;
+          height: 400px;
+          transform: rotateX(60deg) rotateZ(0deg);
+          transform-style: preserve-3d;
+          opacity: 0.15;
+        }
+
+        .table-surface {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #0ea5e9 100%);
+          border: 8px solid #fff;
+          box-shadow:
+            0 20px 60px rgba(6, 182, 212, 0.4),
+            inset 0 0 40px rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+        }
+
+        .table-net {
+          position: absolute;
+          top: 50%;
+          left: 0;
+          width: 100%;
+          height: 60px;
+          background: linear-gradient(to bottom,
+            transparent 0%,
+            rgba(255, 255, 255, 0.9) 10%,
+            rgba(255, 255, 255, 0.9) 90%,
+            transparent 100%
+          );
+          transform: translateY(-50%) translateZ(30px);
+          border-top: 3px solid #fff;
+          border-bottom: 3px solid #fff;
+        }
+
+        .table-line {
+          position: absolute;
+          top: 50%;
+          left: 0;
+          width: 100%;
+          height: 3px;
+          background: white;
+          transform: translateY(-50%);
+        }
+
+        @keyframes bounce-ball {
           0% {
-            left: -50px;
-            transform: translateY(0) scale(1);
+            left: 10%;
+            top: 10%;
+            transform: scale(1);
           }
           25% {
-            transform: translateY(-30px) scale(1.2);
+            left: 90%;
+            top: 10%;
+            transform: scale(1.3);
           }
           50% {
-            transform: translateY(-10px) scale(1);
+            left: 90%;
+            top: 85%;
+            transform: scale(1);
           }
           75% {
-            transform: translateY(-40px) scale(1.3);
+            left: 10%;
+            top: 85%;
+            transform: scale(1.3);
           }
           100% {
-            left: calc(100% + 50px);
-            transform: translateY(0) scale(1);
+            left: 10%;
+            top: 10%;
+            transform: scale(1);
           }
         }
 
-        @keyframes ping-pong-right-to-left {
-          0% {
-            right: -50px;
-            left: auto;
-            transform: translateY(0) scale(1);
-          }
-          25% {
-            transform: translateY(-35px) scale(1.2);
-          }
-          50% {
-            transform: translateY(-15px) scale(1);
-          }
-          75% {
-            transform: translateY(-45px) scale(1.3);
-          }
-          100% {
-            right: calc(100% + 50px);
-            left: auto;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        .ping-pong-left-to-right {
+        .ping-pong-ball {
           position: absolute;
-          animation: ping-pong-left-to-right 4s linear infinite;
+          width: 20px;
+          height: 20px;
+          background: radial-gradient(circle at 30% 30%, #ffffff, #f0f0f0, #e0e0e0);
+          border-radius: 50%;
+          box-shadow:
+            0 5px 15px rgba(0, 0, 0, 0.3),
+            inset -2px -2px 5px rgba(0, 0, 0, 0.2),
+            0 0 20px rgba(255, 255, 255, 0.8);
+          animation: bounce-ball 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
         }
 
-        .ping-pong-right-to-left {
-          position: absolute;
-          animation: ping-pong-right-to-left 4s linear infinite;
+        .ball-1 {
+          animation-delay: 0s;
+          animation-duration: 3s;
+        }
+
+        .ball-2 {
+          animation-delay: 1s;
+          animation-duration: 3.5s;
+        }
+
+        .ball-3 {
+          animation-delay: 2s;
+          animation-duration: 2.8s;
+          width: 18px;
+          height: 18px;
         }
       `}</style>
 
