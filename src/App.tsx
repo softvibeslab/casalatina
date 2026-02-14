@@ -16,6 +16,7 @@ import { RegistrationSystem } from './components/RegistrationSystem';
 
 function AppContent() {
   const [currentSection, setCurrentSection] = useState('home');
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const { loading } = useAuth();
 
   if (loading) {
@@ -30,12 +31,20 @@ function AppContent() {
   }
 
   const handleJoinClick = () => {
-    setCurrentSection('register');
+    setAuthMode('signup');
+    setCurrentSection('auth');
+  };
+
+  const handleNavigate = (section: string) => {
+    if (section === 'auth') {
+      setAuthMode('login');
+    }
+    setCurrentSection(section);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar onNavigate={setCurrentSection} currentSection={currentSection} />
+      <Navbar onNavigate={handleNavigate} currentSection={currentSection} />
       <FloatingWhatsApp />
 
       {currentSection === 'home' && (
@@ -54,7 +63,13 @@ function AppContent() {
       {currentSection === 'tournaments' && <Tournaments />}
 
       {currentSection === 'auth' && (
-        <AuthForm onSuccess={() => setCurrentSection('home')} />
+        <AuthForm
+          initialMode={authMode}
+          onSuccess={() => {
+            setCurrentSection('home');
+            setAuthMode('login');
+          }}
+        />
       )}
 
       {currentSection === 'register' && <MemberRegistration />}

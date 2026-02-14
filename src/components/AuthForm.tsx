@@ -4,10 +4,11 @@ import { LogIn, UserPlus, AlertCircle } from 'lucide-react';
 
 interface AuthFormProps {
   onSuccess: () => void;
+  initialMode?: 'login' | 'signup';
 }
 
-export function AuthForm({ onSuccess }: AuthFormProps) {
-  const [isLogin, setIsLogin] = useState(true);
+export function AuthForm({ onSuccess, initialMode = 'login' }: AuthFormProps) {
+  const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
