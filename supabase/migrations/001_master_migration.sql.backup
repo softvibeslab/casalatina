@@ -1,0 +1,326 @@
+-- ============================================================================
+-- MIGRACIÓN MAESTRA PARA SISTEMA DE 3 ROLES DE CASA LATINA PING PONG CLUB
+-- ============================================================================
+-- Este archivo combina TODAS las migraciones en el orden correcto de ejecución
+-- Ejecutar este archivo PRIMERO aplicará todas las actualizaciones necesarias
+--
+-- Autor: Claude Code Assistant
+-- Fecha: 2026-02-13
+-- Descripción: Sistema completo de gestión de club con 3 roles jerárquicos
+-- ============================================================================
+
+SET statement_timeout = 0; -- Desactiva timeout para ejecución segura
+
+-- ============================================================================
+-- TABLA 1: profiles - ACTUALIZAR CON EXTENDED_ROLE
+-- ============================================================================
+-- Agrega campo extended_role para soportar 4 roles: admin, leader, member, guest
+-- ============================================================================
+DO $$
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS extended_role text;
+$$
+
+-- Migrar datos existentes de role a extended_role
+UPDATE profiles
+SET extended_role = CASE
+  WHEN role = 'admin' THEN 'admin'::text
+  WHEN role = 'member' THEN 'member'::text
+  ELSE role::text
+END::text;
+
+-- Crear índice para rendimiento
+CREATE INDEX IF NOT EXISTS profiles_extended_role_idx ON profiles (extended_role);
+$$
+
+-- ============================================================================
+-- TABLA 2: club_info - INFORMACIÓN DEL NEGOCIO
+-- ============================================================================
+-- Almacena información del club que solo admin puede editar
+-- ============================================================================
+DO $$
+CREATE TABLE IF NOT EXISTS club_info (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  key text UNIQUE NOT NULL,
+  value text NOT NULL,
+  updated_at timestamptz DEFAULT now()
+);
+$$
+
+-- Políticas RLS
+ALTER TABLE club_info ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Club info viewable by everyone"
+ON club_info FOR SELECT
+USING (true);
+$$
+
+CREATE POLICY "Admins can manage club info"
+ON club_info FOR ALL
+USING (EXISTS (
+  SELECT 1 FROM profiles WHERE extended_role = 'admin'::text
+  WITH CHECK OPTION (auth.uid() = id)
+);
+$$
+
+-- Datos semilla
+INSERT INTO club_info (key, value) VALUES
+  ('description', '"es": {"title": "Club de Ping Pong", "subtitle": "Donde el ping pong se encuentra con la cultura, la música y el arte"}'),
+  ('schedule', '{"es": {"weekdays": ["Martes", "Miércoles", "Jueves"], "time": "18:00 - 21:00"}'),
+  ('contact', '{"es": {"phone": "+52 555 1234", "email": "info@casalatina.com", "whatsapp": "https://wa.me/52xxxxxxxxx"}'),
+  ('pricing', '{"es": {"mensual": "$500", "anual": "$5000"}');
+
+-- ============================================================================
+-- TABLA 3: member_levels - SISTEMA DE NIVELES Y LOGROS
+-- ============================================================================
+-- Define niveles de membresía con requisitos de XP y colores
+-- ============================================================================
+DO $$
+CREATE TABLE IF NOT EXISTS member_levels (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text UNIQUE NOT NULL,
+  level_number integer UNIQUE NOT NULL,
+  min_xp integer DEFAULT 0 NOT NULL,
+  benefits jsonb,
+  color text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+$$
+
+-- Insertar niveles iniciales
+INSERT INTO member_levels (name, level_number, min_xp, benefits, color) VALUES
+  ('Principiante', 1, 0, '{"benefits": ["Acceso a eventos básicos", "Torneos de nivel abierto"], "gray"}'::text),
+  ('Intermedio', 2, 500, '{"benefits": ["Eventos exclusivos", "Torneos semanales"], "green"}'::text),
+  ('Avanzado', 3, 1500, '{"benefits": ["Torneos oficiales", "Acceso a torneos nacionales"], "blue"}'::text),
+  ('Elite', 4, 3000, '{"benefits": ["Descuentos especiales", "Prioridad en inscripciones"], "gold"}'::text);
+
+-- ============================================================================
+-- TABLA 4: achievements - SISTEMA DE LOGROS
+-- ============================================================================
+-- Define logros que otorgan XP a miembros
+-- ============================================================================
+DO $$
+CREATE TABLE IF NOT EXISTS achievements (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text UNIQUE NOT NULL,
+  description text,
+  xp_reward integer NOT NULL DEFAULT 0,
+  icon text,
+  category text,
+  created_at timestamptz DEFAULT now()
+);
+$$
+
+-- Insertar logros iniciales
+INSERT INTO achievements (name, description, xp_reward, icon, category) VALUES
+  ('Primera Victoria', 'Gana tu primer partido oficial', 100, '🏆', 'tournament'::text),
+  ('Participante', 'Participa en tu primer torneo', 20, '🎯', 'tournament'::text),
+  ('Social', 'Asiste a 5 eventos sociales', 30, '🤝', 'social'::text),
+  ('Campeón', 'Gana un torneo oficial', 500, '🏅', 'tournament'::text),
+  ('Veterano', 'Participa en 10 torneos', 100, '⭐', 'tournament'::text),
+  ('Top 3', 'Quedas en top 3 de un torneo', 200, '🥇', 'tournament'::text);
+
+-- ============================================================================
+-- TABLA 5: member_achievements - RELACIÓN USUARIO-LOGROS
+-- ============================================================================
+-- Registra qué logros ha obtenido cada miembro
+-- ============================================================================
+DO $$
+CREATE TABLE IF NOT EXISTS member_achievements (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  achievement_id uuid REFERENCES achievements(id) ON DELETE CASCADE NOT NULL,
+  earned_at timestamptz DEFAULT now(),
+  UNIQUE (user_id, achievement_id)
+);
+$$
+
+CREATE INDEX IF NOT EXISTS member_achievements_user_idx ON member_achievements (user_id);
+$$
+
+-- Políticas RLS
+ALTER TABLE member_achievements ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Achievements viewable by everyone"
+ON member_achievements FOR SELECT
+USING (true);
+$$
+
+CREATE POLICY "Users can view their own achievements"
+ON member_achievements FOR SELECT
+USING (auth.uid() = user_id);
+$$
+
+-- ============================================================================
+-- TABLA 6: registrations - SISTEMA DE INSCRIPCIONES UNIFICADO
+-- ============================================================================
+-- Sistema unificado para eventos y torneos con aprobación
+-- ============================================================================
+DO $$
+CREATE TABLE IF NOT EXISTS registrations (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  target_type text NOT NULL CHECK (target_type IN ('event', 'tournament'))::text,
+  target_id uuid NOT NULL,
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'cancelled'))::text,
+  registered_at timestamptz DEFAULT now(),
+  reviewed_at timestamptz,
+  reviewed_by uuid REFERENCES profiles(id) ON DELETE SET NULL,
+  notes text,
+  UNIQUE (user_id, target_type, target_id)
+);
+$$
+
+-- Índices para rendimiento
+CREATE INDEX IF NOT EXISTS registrations_target_idx ON registrations (target_type, target_id);
+CREATE INDEX IF NOT EXISTS registrations_user_idx ON registrations (user_id);
+CREATE INDEX IF NOT EXISTS registrations_status_idx ON registrations (status);
+
+-- Políticas RLS
+ALTER TABLE registrations ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Registrations viewable by everyone"
+ON registrations FOR SELECT
+USING (true);
+$$
+
+CREATE POLICY "Users can register themselves"
+ON registrations FOR INSERT
+USING (auth.uid() = user_id)
+WITH CHECK (
+  (SELECT 1 FROM registrations WHERE user_id = auth.uid() AND target_id = target_id AND target_type = target_type)::int
+);
+$$
+
+CREATE POLICY "Admins and leaders can manage registrations"
+ON registrations FOR ALL
+USING (EXISTS (
+  SELECT 1 FROM profiles WHERE extended_role IN ('admin', 'leader')::text
+  WITH CHECK OPTION (auth.uid() = id)
+);
+$$
+
+CREATE POLICY "Users can cancel their pending registrations"
+ON registrations FOR UPDATE
+USING (auth.uid() = user_id)
+WITH CHECK (
+  status = 'pending'::text
+  AND EXISTS (
+    SELECT 1 FROM registrations WHERE id = id AND user_id = auth.uid()::int
+  );
+);
+$$
+
+-- ============================================================================
+-- TABLA 7: notifications - SISTEMA DE NOTIFICACIONES
+-- ============================================================================
+-- Notificaciones a usuarios sobre inscripciones, logros, level up, etc.
+-- ============================================================================
+DO $$
+CREATE TABLE IF NOT EXISTS notifications (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  type text NOT NULL CHECK (type IN ('registration_approved', 'registration_rejected', 'achievement_earned', 'level_up', 'event_reminder'))::text,
+  title text NOT NULL,
+  message text NOT NULL,
+  related_id uuid,
+  is_read boolean DEFAULT false,
+  created_at timestamptz DEFAULT now()
+);
+$$
+
+-- Índices
+CREATE INDEX IF NOT EXISTS notifications_user_idx ON notifications (user_id);
+CREATE INDEX IF NOT EXISTS notifications_type_idx ON notifications (type);
+CREATE INDEX IF NOT EXISTS notifications_read_idx ON notifications (is_read);
+
+-- Políticas RLS
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Notifications viewable by everyone"
+ON notifications FOR SELECT
+USING (true);
+$$
+
+CREATE POLICY "Users can view their own notifications"
+ON notifications FOR SELECT
+USING (auth.uid() = user_id);
+$$
+
+CREATE POLICY "Users can update their own notifications"
+ON notifications FOR UPDATE
+USING (auth.uid() = user_id)
+WITH CHECK (
+  is_read = false::boolean OR is_read = NULL::boolean
+);
+$$
+
+-- ============================================================================
+-- ACTUALIZACIÓN DE TABLAS EXISTENTES
+-- ============================================================================
+
+-- Añadir campos XP y nivel a members
+DO $$
+ALTER TABLE members ADD COLUMN IF NOT EXISTS xp_total integer DEFAULT 0;
+ALTER TABLE members ADD COLUMN IF NOT EXISTS level_id uuid REFERENCES member_levels(id) ON DELETE SET NULL;
+ALTER TABLE members ADD COLUMN IF NOT EXISTS membership_status text DEFAULT 'pending' CHECK (membership_status IN ('active', 'inactive', 'pending'));
+$$
+
+-- Añadir campos de requisitos a events
+DO $$
+ALTER TABLE events ADD COLUMN IF NOT EXISTS min_level_id uuid REFERENCES member_levels(id) ON DELETE SET NULL;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS max_participants integer;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS registration_enabled boolean DEFAULT true;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS current_participants integer DEFAULT 0;
+$$
+
+-- Añadir campos de requisitos a tournaments
+DO $$
+ALTER TABLE tournaments ADD COLUMN IF NOT EXISTS min_level_id uuid REFERENCES member_levels(id) ON DELETE SET NULL;
+$$
+
+-- ============================================================================
+-- DATOS SEMILLA INICIALES
+-- ============================================================================
+
+-- Insertar miembro demo con nivel Intermedio
+DO $$
+INSERT INTO profiles (id, email, full_name, role, extended_role, created_at) VALUES
+  ('01234567-89ab-cdef-1234-5678', 'demo@example.com', 'Usuario Demo', 'member', 'member', now()::text),
+  ('98765432-1f2-3456-789a', 'Miembro Ejemplo', 'admin', 'admin', now()::text);
+$$
+
+-- Insertar miembro demo con nivel Avanzado
+INSERT INTO profiles (id, email, full_name, role, extended_role, created_at) VALUES
+  ('45678901-abcd-ef12-3456-789a', 'Admin Campeón', 'admin', 'admin', now()::text);
+$$
+
+-- Insertar datos de miembro demo
+DO $$
+INSERT INTO members (user_id, phone, membership_status, xp_total, level_id) VALUES
+  ('01234567-89ab-cdef-1234-5678', NULL, 'active', 2500, (SELECT id FROM member_levels WHERE name = 'Avanzado' LIMIT 1)::text),
+  ('98765432-1f2-3456-789a', '+52 555 1234', 'active', 1500, (SELECT id FROM member_levels WHERE name = 'Elite' LIMIT 1)::text);
+$$
+
+-- ============================================================================
+-- FIN DE MIGRACIÓN
+-- ============================================================================
+-- Todas las tablas necesarias están creadas
+-- Las políticas RLS están configuradas
+-- Los datos semilla están insertados
+
+-- ============================================================================
+-- GUÍA DE EJECUCIÓN
+-- ============================================================================
+
+-- Ejecutar todas las migraciones en este orden específico:
+-- 1. Crear proyecto en Supabase Dashboard
+-- 2. Abrir SQL Editor
+-- 3. Copiar y ejecutar cada migración 001-008.sql en orden
+-- 4. Continuar con 002 hasta 008.sql
+
+-- IMPORTANTE: Ejecutar las migraciones en ORDEN para evitar errores
+-- Si ejecutas todas de una vez, Supabase puede fallar por conflicto de claves foráneas
+
+-- ============================================================================
+-- FIN DEL ARCHIVO
+-- ============================================================================

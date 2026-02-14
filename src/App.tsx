@@ -11,6 +11,8 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { ClubInfo } from './components/ClubInfo';
 import { Location } from './components/Location';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
+import { MemberProfile } from './components/MemberProfile';
+import { RegistrationSystem } from './components/RegistrationSystem';
 
 function AppContent() {
   const [currentSection, setCurrentSection] = useState('home');
@@ -58,6 +60,10 @@ function AppContent() {
       {currentSection === 'register' && <MemberRegistration />}
 
       {currentSection === 'admin' && <AdminDashboard />}
+
+      {currentSection === 'profile' && <MemberProfile />}
+
+      {currentSection === 'registrations' && <RegistrationSystem />}
 
       <footer className="relative text-white py-8 mt-16 border-t-4 border-chiapas-jade">
         <div

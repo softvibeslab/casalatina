@@ -1,0 +1,19 @@
+-- Migration 001: Add extended_role to profiles table
+-- This adds a new role field to support 4 roles: admin, leader, member, guest
+
+-- Add the extended_role column
+ALTER TABLE profiles
+ADD COLUMN IF NOT EXISTS extended_role text
+CHECK (extended_role IN ('admin', 'leader', 'member', 'guest'))
+DEFAULT 'guest';
+
+-- Migrate existing data: copy current role to extended_role
+UPDATE profiles
+SET extended_role = role
+WHERE extended_role IS NULL;
+
+-- Add index for performance
+CREATE INDEX IF NOT EXISTS idx_profiles_extended_role ON profiles(extended_role);
+
+-- Add comment for documentation
+COMMENT ON COLUMN profiles.extended_role IS 'Extended role with 4 levels: admin, leader, member, guest. Leader role has most admin privileges except cannot manage club info.';

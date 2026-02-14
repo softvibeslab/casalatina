@@ -1,0 +1,70 @@
+-- Migration 002: Create club_info table
+-- This stores business information that only admins can edit
+
+-- Create the club_info table
+CREATE TABLE IF NOT EXISTS club_info (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  key text UNIQUE NOT NULL,           -- 'description', 'schedule', 'contact', 'pricing'
+  value text NOT NULL,                  -- JSON or text content
+  updated_at timestamptz DEFAULT now()
+);
+
+-- Enable Row Level Security
+ALTER TABLE club_info ENABLE ROW LEVEL SECURITY;
+
+-- Public can read club info
+CREATE POLICY "Club info viewable by everyone"
+ON club_info FOR SELECT
+TO public
+USING (true);
+
+-- Only admins can insert club info
+CREATE POLICY "Admins can insert club info"
+ON club_info FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.extended_role = 'admin'
+  )
+);
+
+-- Only admins can update club info
+CREATE POLICY "Admins can update club info"
+ON club_info FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.extended_role = 'admin'
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.extended_role = 'admin'
+  )
+);
+
+-- Only admins can delete club info
+CREATE POLICY "Admins can delete club info"
+ON club_info FOR DELETE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.extended_role = 'admin'
+  )
+);
+
+-- Create index for performance
+CREATE INDEX IF NOT EXISTS idx_club_info_key ON club_info(key);
+
+-- Add comments for documentation
+COMMENT ON TABLE club_info IS 'Business information that only admins can manage. Includes description, schedule, contact, and pricing.';
+COMMENT ON COLUMN club_info.key IS 'Type of information: description, schedule, contact, pricing';
+COMMENT ON COLUMN club_info.value IS 'Content stored as JSON or text';

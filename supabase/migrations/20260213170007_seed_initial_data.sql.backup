@@ -1,0 +1,37 @@
+-- Migration 008: Seed initial data
+-- This inserts default member levels, achievements, and club info
+
+-- Insert default member levels
+INSERT INTO member_levels (name, level_number, min_xp, color, benefits) VALUES
+('Principiante', 1, 0, '#6B7280', '{"es": "Acceso a eventos básicos"}'),
+('Intermedio', 2, 500, '#10B981', '{"es": "Acceso a torneos intermedios"}'),
+('Avanzado', 3, 1500, '#3B82F6', '{"es": "Acceso a torneos avanzados"}'),
+('Elite', 4, 3000, '#F59E0B', '{"es": "Prioridad en inscripciones y descuentos especiales"}')
+ON CONFLICT (name) DO NOTHING;
+
+-- Insert default achievements
+INSERT INTO achievements (name, description, xp_reward, icon, category) VALUES
+('Primera Victoria', 'Gana tu primer partido oficial', 100, '🏆', 'tournament'),
+('Participante', 'Participa en tu primer torneo', 20, '🎯', 'tournament'),
+('Campeón', 'Gana un torneo', 500, '🏅', 'tournament'),
+('Subcampeón', 'Quedas segundo en un torneo', 200, '🥈', 'tournament'),
+('Tercer Lugar', 'Quedas tercero en un torneo', 100, '🥉', 'tournament'),
+('Social', 'Asiste a 5 eventos sociales', 30, '🤝', 'social'),
+('Veterano', 'Participa en 10 torneos', 100, '⭐', 'tournament'),
+('Dedicado', 'Asiste a 20 entrenamientos', 50, '💪', 'training'),
+('Competitivo', 'Juega 50 partidos', 150, '🎾', 'tournament'),
+('Invicto', 'Gana 10 partidos seguidos', 300, '🔥', 'tournament')
+ON CONFLICT (name) DO NOTHING;
+
+-- Insert initial club info (can be updated by admin)
+INSERT INTO club_info (key, value) VALUES
+('description', '{"es": "Bienvenido a Casa Latina Ping Pong Club, el lugar de encuentro para los amantes del tenis de mesa en San Cristóbal de las Casas, Chiapas. Nuestro club ofrece entrenamientos, torneos, eventos sociales y una comunidad apasionada por este deporte.", "en": "Welcome to Casa Latina Ping Pong Club..."}}'),
+('schedule', '{"es": {"lunes_a_viernes": "18:00 - 21:00", "sabado": "10:00 - 14:00", "domingo": "Cerrado", "notas": "Horarios sujetos a cambios según temporada"}}'),
+('contact', '{"telefono": "+52 967 123 4567", "whatsapp": "+52 967 123 4567", "email": "info@casalatinappong.com", "facebook": "CasalatinaPingPong", "instagram": "@casalatina.pingpong"}}'),
+('pricing', '{"es": {"mensual": "$200 MXN", "trimestral": "$500 MXN", "anual": "$1,500 MXN", "dia_evento": "$50 MXN", "notas": "Precios sujetos a cambios sin previo aviso"}}')
+ON CONFLICT (key) DO NOTHING;
+
+-- Add comments for documentation
+COMMENT ON DATA member_levels IS 'Initial member levels: Principiante (0 XP), Intermedio (500 XP), Avanzado (1500 XP), Elite (3000 XP)';
+COMMENT ON DATA achievements IS 'Initial achievements covering tournament wins, participation, social events, and milestones';
+COMMENT ON DATA club_info IS 'Initial club information in Spanish. Can be updated by admins through the admin dashboard.';

@@ -1,0 +1,122 @@
+-- Migration 003: Create member levels and achievements system
+-- This creates tables for XP-based member levels and achievement tracking
+
+-- Create member_levels table
+CREATE TABLE IF NOT EXISTS member_levels (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL UNIQUE,           -- 'Principiante', 'Intermedio', 'Avanzado', 'Elite'
+  level_number integer UNIQUE NOT NULL,   -- 1, 2, 3, 4...
+  min_xp integer DEFAULT 0,             -- Minimum XP required for this level
+  benefits json,                         -- Level benefits (JSON)
+  color text,                            -- Color for UI display
+  created_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE member_levels ENABLE ROW LEVEL SECURITY;
+
+-- Public can read member levels
+CREATE POLICY "Member levels viewable by everyone"
+ON member_levels FOR SELECT
+TO public
+USING (true);
+
+-- Only admins can manage member levels
+CREATE POLICY "Admins can manage member levels"
+ON member_levels FOR ALL
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.extended_role = 'admin'
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.extended_role = 'admin'
+  )
+);
+
+-- Create achievements table
+CREATE TABLE IF NOT EXISTS achievements (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL UNIQUE,
+  description text,
+  xp_reward integer NOT NULL DEFAULT 0,    -- XP granted when earned
+  icon text,                              -- Icon for UI display
+  category text,                           -- 'tournament', 'event', 'social', etc.
+  created_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
+
+-- Public can read achievements
+CREATE POLICY "Achievements viewable by everyone"
+ON achievements FOR SELECT
+TO public
+USING (true);
+
+-- Only admins can manage achievements
+CREATE POLICY "Admins can manage achievements"
+ON achievements FOR ALL
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.extended_role = 'admin'
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.extended_role = 'admin'
+  )
+);
+
+-- Create member_achievements table
+CREATE TABLE IF NOT EXISTS member_achievements (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  achievement_id uuid REFERENCES achievements(id) ON DELETE CASCADE NOT NULL,
+  earned_at timestamptz DEFAULT now(),
+  UNIQUE(user_id, achievement_id)
+);
+
+ALTER TABLE member_achievements ENABLE ROW LEVEL SECURITY;
+
+-- Public can read member achievements (to show badges on profiles)
+CREATE POLICY "Member achievements viewable by everyone"
+ON member_achievements FOR SELECT
+TO public
+USING (true);
+
+-- System (admins/leaders) can create member achievements
+CREATE POLICY "System can create member achievements"
+ON member_achievements FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.extended_role IN ('admin', 'leader')
+  )
+);
+
+-- Add XP and level fields to members table
+ALTER TABLE members
+ADD COLUMN IF NOT EXISTS xp_total integer DEFAULT 0,
+ADD COLUMN IF NOT EXISTS level_id uuid REFERENCES member_levels(id);
+
+-- Create index for XP ranking
+CREATE INDEX IF NOT EXISTS idx_members_xp_total ON members(xp_total DESC);
+
+-- Add comments for documentation
+COMMENT ON TABLE member_levels IS 'Member levels based on XP. Each level has minimum XP requirement, benefits, and color for UI.';
+COMMENT ON TABLE achievements IS 'Achievements that grant XP when earned. Categories include tournament, event, social, etc.';
+COMMENT ON TABLE member_achievements IS 'Junction table tracking which achievements each member has earned.';
+COMMENT ON COLUMN members.xp_total IS 'Total experience points earned by the member.';
+COMMENT ON COLUMN members.level_id IS 'Current member level based on XP total.';

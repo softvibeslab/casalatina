@@ -1,0 +1,26 @@
+-- Migration 006: Update events and tournaments with registration control
+-- This adds fields for level requirements, participant limits, and registration control
+
+-- Add registration control fields to events table
+ALTER TABLE events
+ADD COLUMN IF NOT EXISTS min_level_id uuid REFERENCES member_levels(id),
+ADD COLUMN IF NOT EXISTS max_participants integer,
+ADD COLUMN IF NOT EXISTS registration_enabled boolean DEFAULT true,
+ADD COLUMN IF NOT EXISTS current_participants integer DEFAULT 0;
+
+-- Add index for events filtering by level
+CREATE INDEX IF NOT EXISTS idx_events_min_level ON events(min_level_id);
+
+-- Add registration control field to tournaments table
+ALTER TABLE tournaments
+ADD COLUMN IF NOT EXISTS min_level_id uuid REFERENCES member_levels(id);
+
+-- Add index for tournaments filtering by level
+CREATE INDEX IF NOT EXISTS idx_tournaments_min_level ON tournaments(min_level_id);
+
+-- Add comments for documentation
+COMMENT ON COLUMN events.min_level_id IS 'Minimum member level required to register for this event';
+COMMENT ON COLUMN events.max_participants IS 'Maximum number of participants allowed (null = unlimited)';
+COMMENT ON COLUMN events.registration_enabled IS 'Whether registration is currently enabled for this event';
+COMMENT ON COLUMN events.current_participants IS 'Current number of approved participants';
+COMMENT ON COLUMN tournaments.min_level_id IS 'Minimum member level required to register for this tournament';

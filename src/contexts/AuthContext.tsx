@@ -81,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: data.user.email!,
           full_name: fullName,
           role: 'guest',
+          extended_role: 'guest',  // Set extended_role for new 4-role system
         });
 
       if (profileError) throw profileError;

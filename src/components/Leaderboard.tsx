@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Trophy, TrendingUp, Award } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Player } from '../types';
+import { Player, MemberLevel } from '../types';
 
 export function Leaderboard() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -20,6 +20,10 @@ export function Leaderboard() {
           profiles (
             full_name,
             email
+          ),
+          members (
+            xp_total,
+            member_levels (*)
           )
         `)
         .order('ranking_points', { ascending: false })
@@ -50,12 +54,20 @@ export function Leaderboard() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="text-center mb-12">
-        <Trophy className="h-16 w-16 text-orange-600 mx-auto mb-4" />
-        <h2 className="text-4xl font-bold text-gray-800 mb-4">
-          Tabla de Clasificación
-        </h2>
+    <div className="relative">
+      <div
+        className="absolute inset-0 bg-cover bg-center -z-10"
+        style={{
+          backgroundImage: 'url(/clasificacion.png)',
+        }}
+      />
+      <div className="absolute inset-0 bg-white/90" />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-12">
+          <Trophy className="h-16 w-16 text-orange-600 mx-auto mb-4" />
+          <h2 className="text-4xl font-bold text-gray-800 mb-4">
+            Tabla de Clasificación
+          </h2>
         <p className="text-lg text-gray-600">
           Los mejores jugadores del club
         </p>
@@ -74,6 +86,7 @@ export function Leaderboard() {
                 <tr>
                   <th className="px-6 py-4 text-left font-semibold">Posición</th>
                   <th className="px-6 py-4 text-left font-semibold">Jugador</th>
+                  <th className="px-6 py-4 text-left font-semibold">Nivel</th>
                   <th className="px-6 py-4 text-center font-semibold">Puntos</th>
                   <th className="px-6 py-4 text-center font-semibold">Partidos</th>
                   <th className="px-6 py-4 text-center font-semibold">Ganados</th>
@@ -106,6 +119,21 @@ export function Leaderboard() {
                           {player.profiles?.full_name || 'Unknown'}
                         </div>
                       </td>
+                      <td className="px-6 py-4">
+                        {player.members?.member_levels ? (
+                          <span
+                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+                            style={{
+                              backgroundColor: player.members.member_levels.color,
+                              color: 'white'
+                            }}
+                          >
+                            {player.members.member_levels.name}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400 text-sm">Sin nivel</span>
+                        )}
+                      </td>
                       <td className="px-6 py-4 text-center">
                         <div className="flex items-center justify-center space-x-1">
                           <TrendingUp className="h-4 w-4 text-orange-600" />
@@ -133,6 +161,7 @@ export function Leaderboard() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

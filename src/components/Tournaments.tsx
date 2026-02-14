@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Trophy, Calendar, Users, Award } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Tournament } from '../types';
+import { Tournament, MemberLevel } from '../types';
 
 export function Tournaments() {
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [tournaments, setTournaments] = useState<(Tournament & { member_levels?: MemberLevel })[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,7 +15,10 @@ export function Tournaments() {
     try {
       const { data, error } = await supabase
         .from('tournaments')
-        .select('*')
+        .select(`
+          *,
+          member_levels (*)
+        `)
         .order('start_date', { ascending: false });
 
       if (error) throw error;
@@ -63,12 +66,20 @@ export function Tournaments() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="text-center mb-12">
-        <Trophy className="h-16 w-16 text-orange-600 mx-auto mb-4" />
-        <h2 className="text-4xl font-bold text-gray-800 mb-4">
-          Torneos
-        </h2>
+    <div className="relative">
+      <div
+        className="absolute inset-0 bg-cover bg-center -z-10"
+        style={{
+          backgroundImage: 'url(/torneo.png)',
+        }}
+      />
+      <div className="absolute inset-0 bg-white/90" />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-12">
+          <Trophy className="h-16 w-16 text-orange-600 mx-auto mb-4" />
+          <h2 className="text-4xl font-bold text-gray-800 mb-4">
+            Torneos
+          </h2>
         <p className="text-lg text-gray-600">
           Compite con los mejores jugadores del club
         </p>
@@ -101,9 +112,24 @@ export function Tournaments() {
                 </div>
 
                 {tournament.description && (
-                  <p className="text-white/90">
+                  <p className="text-white/90 mb-3">
                     {tournament.description}
                   </p>
+                )}
+
+                {tournament.member_levels && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-white/80">Nivel requerido:</span>
+                    <span
+                      className="px-2 py-1 rounded-full text-xs font-semibold"
+                      style={{
+                        backgroundColor: tournament.member_levels.color,
+                        color: 'white'
+                      }}
+                    >
+                      {tournament.member_levels.name}
+                    </span>
+                  </div>
                 )}
               </div>
 
@@ -150,6 +176,7 @@ export function Tournaments() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }

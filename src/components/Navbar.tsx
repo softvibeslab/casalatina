@@ -1,6 +1,7 @@
-import { Menu, X, Trophy, Calendar, Users, BarChart3 } from 'lucide-react';
+import { Menu, X, Trophy, Calendar, Users, BarChart3, User, ClipboardList } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { NotificationCenter } from './NotificationCenter';
 
 interface NavbarProps {
   onNavigate: (section: string) => void;
@@ -14,11 +15,18 @@ export function Navbar({ onNavigate, currentSection }: NavbarProps) {
   const navItems = [
     { id: 'home', label: 'Inicio', icon: Trophy },
     { id: 'events', label: 'Eventos', icon: Calendar },
-    { id: 'leaderboard', label: 'Clasificación', icon: BarChart3 },
     { id: 'tournaments', label: 'Torneos', icon: Trophy },
+    { id: 'leaderboard', label: 'Clasificación', icon: BarChart3 },
   ];
 
-  if (profile?.role === 'admin') {
+  // Add member-specific links
+  if (profile?.extended_role === 'member' || profile?.extended_role === 'leader' || profile?.extended_role === 'admin') {
+    navItems.push({ id: 'profile', label: 'Mi Perfil', icon: User });
+    navItems.push({ id: 'registrations', label: 'Inscripciones', icon: ClipboardList });
+  }
+
+  // Add admin link
+  if (profile?.extended_role === 'admin' || profile?.extended_role === 'leader') {
     navItems.push({ id: 'admin', label: 'Admin', icon: Users });
   }
 
@@ -73,6 +81,7 @@ export function Navbar({ onNavigate, currentSection }: NavbarProps) {
           <div className="hidden md:flex items-center space-x-4">
             {profile ? (
               <>
+                <NotificationCenter />
                 <span className="text-white text-sm font-medium">{profile.full_name}</span>
                 <button
                   onClick={signOut}
@@ -110,6 +119,12 @@ export function Navbar({ onNavigate, currentSection }: NavbarProps) {
           />
           <div className="absolute inset-0 bg-black/60" />
           <div className="relative px-2 pt-2 pb-3 space-y-1">
+            {profile && (
+              <div className="flex items-center justify-between px-3 py-2 mb-2">
+                <span className="text-white font-semibold">{profile.full_name}</span>
+                <NotificationCenter />
+              </div>
+            )}
             {navItems.map((item) => {
               const Icon = item.icon;
               return (

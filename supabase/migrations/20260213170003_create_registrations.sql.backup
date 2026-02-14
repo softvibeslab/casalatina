@@ -1,0 +1,74 @@
+-- Migration 004: Create registrations table
+-- This creates a unified registration system for both events and tournaments
+
+-- Create registrations table
+CREATE TABLE IF NOT EXISTS registrations (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  target_type text NOT NULL CHECK (target_type IN ('event', 'tournament')),
+  target_id uuid NOT NULL,                -- event_id or tournament_id
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'cancelled')),
+  registered_at timestamptz DEFAULT now(),
+  reviewed_at timestamptz,
+  reviewed_by uuid REFERENCES profiles(id),
+  notes text,                              -- Notes from admin/leader when rejecting
+  UNIQUE(target_type, target_id, user_id)
+);
+
+ALTER TABLE registrations ENABLE ROW LEVEL SECURITY;
+
+-- Public can read registrations (to show participant lists)
+CREATE POLICY "Registrations viewable by everyone"
+ON registrations FOR SELECT
+TO public
+USING (true);
+
+-- Authenticated users can create their own registrations
+CREATE POLICY "Users can register themselves"
+ON registrations FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid() = user_id);
+
+-- Admins and leaders can manage registrations
+CREATE POLICY "Admins and leaders can manage registrations"
+ON registrations FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.extended_role IN ('admin', 'leader')
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.extended_role IN ('admin', 'leader')
+  )
+);
+
+-- Admins and leaders can cancel registrations
+CREATE POLICY "Admins and leaders can cancel registrations"
+ON registrations FOR DELETE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.extended_role IN ('admin', 'leader')
+  )
+);
+
+-- Create indexes for performance
+CREATE INDEX IF NOT EXISTS idx_registrations_target ON registrations(target_type, target_id);
+CREATE INDEX IF NOT EXISTS idx_registrations_user ON registrations(user_id);
+CREATE INDEX IF NOT EXISTS idx_registrations_status ON registrations(status);
+
+-- Add comments for documentation
+COMMENT ON TABLE registrations IS 'Unified registration system for events and tournaments. Users can register, admins/leaders approve.';
+COMMENT ON COLUMN registrations.target_type IS 'Type of target: event or tournament';
+COMMENT ON COLUMN registrations.target_id IS 'ID of the event or tournament';
+COMMENT ON COLUMN registrations.status IS 'Registration status: pending, approved, rejected, cancelled';
+COMMENT ON COLUMN registrations.reviewed_by IS 'Admin or leader who reviewed the registration';
+COMMENT ON COLUMN registrations.notes IS 'Optional notes when rejecting a registration';
