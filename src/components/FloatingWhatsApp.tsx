@@ -13,7 +13,7 @@ export function FloatingWhatsApp() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end space-y-3">
+      <div className="fixed bottom-20 right-6 z-50 flex flex-col items-end space-y-3 sm:bottom-6">
         {isOpen && (
           <div className="bg-white rounded-2xl shadow-2xl p-4 mb-2 max-w-xs border-2 border-chiapas-jade animate-in slide-in-from-bottom-4 fade-in duration-300">
             <div className="flex items-start space-x-3">
