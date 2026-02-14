@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Trophy, Target, TrendingUp, Award, Calendar } from 'lucide-react';
+import { Trophy, Target, Award } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Member, MemberAchievement, Player } from '../types';
@@ -88,18 +88,6 @@ export function MemberProfile() {
   const xpToNextLevel = level ? level.min_xp - (member.xp_total || 0) : 0;
   const xpPercentage = level && level.min_xp > 0 ? (member.xp_total || 0) / level.min_xp * 100 : 100;
 
-  const getStatusColor = () => {
-    if (member.membership_status === "active") return "text-green-600";
-    if (member.membership_status === "inactive") return "text-red-600";
-    return "text-yellow-600";
-  };
-
-  const getStatusLabel = () => {
-    if (member.membership_status === "active") return "Activo";
-    if (member.membership_status === "inactive") return "Inactivo";
-    return "Pendiente";
-  };
-
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       {/* Header with Level Badge */}
@@ -159,9 +147,6 @@ export function MemberProfile() {
         )}
 
         {/* Member Info */}
-
-      {/* Player Stats */}
-        </div>
       </div>
 
       {/* Player Stats */}
@@ -194,12 +179,13 @@ export function MemberProfile() {
                 {((player.win_rate || 0) * 100).toFixed(1)}%
               </div>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Puntos de Ranking</span>
-              <span className="text-3xl font-bold text-orange-600">
-                {player.ranking_points || 1000}
-              </span>
-            </div>
+          </div>
+
+          <div className="mt-6 flex items-center justify-between">
+            <span className="text-gray-600">Puntos de Ranking</span>
+            <span className="text-3xl font-bold text-orange-600">
+              {player.ranking_points || 1000}
+            </span>
           </div>
         </div>
       )}

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Calendar, Trophy, Users, X, Award, Shield, Trophy as TrophyIcon, Medal, ListChecks, Info } from 'lucide-react';
+import { Plus, Trash2, Calendar, Users, X, Award, Shield, Trophy as TrophyIcon, Medal, ListChecks, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Event, Tournament, Member, MemberLevel, Achievement, Registration, Notification } from '../types';
+import { Event, Tournament, Member, Achievement, Registration } from '../types';
 
 type TabType = 'events' | 'tournaments' | 'members' | 'rankings' | 'registrations' | 'achievements' | 'club-info';
 
@@ -13,7 +13,6 @@ export function AdminDashboard() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [members, setMembers] = useState<(Member & { profiles?: { full_name: string; email: string } })[]>([]);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
-  const [memberLevels, setMemberLevels] = useState<MemberLevel[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEventForm, setShowEventForm] = useState(false);
@@ -140,12 +139,24 @@ export function AdminDashboard() {
         const registration = registrations.find(r => r.id === id);
         if (registration) {
           const table = registration.target_type;
-          await supabase
-            .from(table === 'event' ? 'events' : 'tournaments')
-            .update({
-              current_participants: supabase.raw(`current_participants + 1`)
-            })
-            .eq('id', registration.target_id);
+          const tableName = table === 'event' ? 'events' : 'tournaments';
+
+          // Fetch current value
+          const { data: currentData } = await supabase
+            .from(tableName)
+            .select('current_participants')
+            .eq('id', registration.target_id)
+            .single();
+
+          // Update with incremented value
+          if (currentData) {
+            await supabase
+              .from(tableName)
+              .update({
+                current_participants: (currentData.current_participants || 0) + 1
+              })
+              .eq('id', registration.target_id);
+          }
         }
       }
 

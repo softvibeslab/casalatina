@@ -62,6 +62,7 @@ export interface Player {
   win_rate: number;
   updated_at: string;
   profiles?: Profile;
+  members?: Member & { member_levels?: MemberLevel };
 }
 
 export interface Match {

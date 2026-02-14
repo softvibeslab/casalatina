@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Trophy, TrendingUp, Award } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Player, MemberLevel } from '../types';
+import { Player } from '../types';
 
 export function Leaderboard() {
   const [players, setPlayers] = useState<Player[]>([]);

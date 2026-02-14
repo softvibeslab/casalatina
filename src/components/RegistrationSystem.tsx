@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Calendar as CalendarIcon, MapPin, Users, Check, X, Trophy, Info } from 'lucide-react';
+import { Calendar as CalendarIcon, MapPin, Users, Check, Trophy, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Event, Tournament, Registration, MemberLevel } from '../types';
 
 export function RegistrationSystem() {
   const { profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'events' | 'tournaments'>('events');
+  const [activeTab, setActiveTab] = useState<'events' | 'tournaments' | 'my-registrations'>('events');
   const [events, setEvents] = useState<(Event & { member_levels?: MemberLevel })[]>([]);
   const [tournaments, setTournaments] = useState<(Tournament & { member_levels?: MemberLevel })[]>([]);
   const [myRegistrations, setMyRegistrations] = useState<Registration[]>([]);
@@ -129,7 +129,7 @@ export function RegistrationSystem() {
     }
 
     // Check capacity
-    if ('max_participants' in target && !checkCapacity(target.max_participants, target.current_participants)) {
+    if ('max_participants' in target && 'current_participants' in target && !checkCapacity(target.max_participants, target.current_participants)) {
       alert('Este evento/torneo está lleno');
       return;
     }
@@ -451,16 +451,21 @@ export function RegistrationSystem() {
                         <Check className="h-4 w-4" />
                         <span className="font-semibold">Inscrito</span>
                       </div>
-                    ) : !canJoin && (
+                    ) : !canJoin ? (
                       <div className="bg-red-50 text-red-800 px-4 py-2 rounded-lg text-sm">
+                        Requiere nivel: {tournament.member_levels?.name || "Superior"}
+                      </div>
+                    ) : null}
+
                     <button
                       onClick={() => handleRegister(tournament.id, 'tournament')}
                       disabled={isRegistered || !canJoin}
-                      className={`w-full py-3 rounded-lg font-semibold transition-all ${
-                        isRegistered || !canJoin
+                      className={"w-full py-3 rounded-lg font-semibold transition-all " +
+                        (isRegistered || !canJoin
                           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           : 'bg-gradient-to-r from-orange-500 to-amber-600 text-white hover:from-orange-600 hover:to-amber-700 shadow-lg'
-                      }`}
+                        )
+                      }
                     >
                       {isRegistered ? 'Inscrito' : !canJoin ? 'Nivel insuficiente' : 'Inscribirse'}
                     </button>

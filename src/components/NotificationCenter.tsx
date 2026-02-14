@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bell, X, Check, Trophy, Calendar, AlertCircle, Award, Info } from 'lucide-react';
+import { Bell, Check, Trophy, Calendar, AlertCircle, Award, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Notification } from '../types';
