@@ -61,6 +61,12 @@ export interface Player {
   matches_lost: number;
   win_rate: number;
   updated_at: string;
+  // Denormalized fields for easier access
+  full_name?: string;
+  email?: string;
+  level_name?: string;
+  level_color?: string;
+  // Legacy joined data (may not work without proper foreign keys)
   profiles?: Profile;
   members?: Member & { member_levels?: MemberLevel };
 }

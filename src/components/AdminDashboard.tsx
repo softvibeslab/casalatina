@@ -331,6 +331,7 @@ export function AdminDashboard() {
                           <button
                             onClick={() => deleteEvent(event.id)}
                             className="text-red-600 hover:text-red-800"
+                            title="Eliminar"
                           >
                             <Trash2 className="h-5 w-5" />
                           </button>
@@ -623,7 +624,7 @@ export function AdminDashboard() {
 }
 
 function EventForm({ onClose }: { onClose: () => void }) {
-  const { user } = useAuth();
+  const { profile } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -661,6 +662,12 @@ function EventForm({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     setLoading(true);
 
+    if (!profile?.id) {
+      alert('Error: No se encontró tu perfil. Por favor cierra sesión y vuelve a iniciar.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.from('events').insert({
         title: formData.title,
@@ -672,7 +679,7 @@ function EventForm({ onClose }: { onClose: () => void }) {
         min_level_id: formData.min_level_id || null,
         max_participants: formData.max_participants ? parseInt(formData.max_participants) : null,
         registration_enabled: formData.registration_enabled,
-        created_by: user?.id,
+        created_by: profile.id,
       });
 
       if (error) throw error;
@@ -842,7 +849,7 @@ function EventForm({ onClose }: { onClose: () => void }) {
 }
 
 function TournamentForm({ onClose }: { onClose: () => void }) {
-  const { user } = useAuth();
+  const { profile } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -858,10 +865,16 @@ function TournamentForm({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     setLoading(true);
 
+    if (!profile?.id) {
+      alert('Error: No se encontró tu perfil. Por favor cierra sesión y vuelve a iniciar.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.from('tournaments').insert({
         ...formData,
-        created_by: user?.id,
+        created_by: profile.id,
       });
 
       if (error) throw error;

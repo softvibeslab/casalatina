@@ -15,17 +15,7 @@ export function Leaderboard() {
     try {
       const { data, error } = await supabase
         .from('players')
-        .select(`
-          *,
-          profiles (
-            full_name,
-            email
-          ),
-          members (
-            xp_total,
-            member_levels (*)
-          )
-        `)
+        .select('*')
         .order('ranking_points', { ascending: false })
         .limit(20);
 
@@ -116,19 +106,19 @@ export function Leaderboard() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="font-medium text-gray-800">
-                          {player.profiles?.full_name || 'Unknown'}
+                          {player.full_name || player.email || 'Unknown'}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        {player.members?.member_levels ? (
+                        {player.level_name ? (
                           <span
                             className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
                             style={{
-                              backgroundColor: player.members.member_levels.color,
+                              backgroundColor: player.level_color || '#6366f1',
                               color: 'white'
                             }}
                           >
-                            {player.members.member_levels.name}
+                            {player.level_name}
                           </span>
                         ) : (
                           <span className="text-gray-400 text-sm">Sin nivel</span>

@@ -16,7 +16,7 @@ export function ClubInfo() {
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <img
-              src="/631451116_895857566531489_7045700058287128536_n.jpg"
+              src="/comunidad.png"
               alt="Espacio Casa Latina"
               className="w-full h-48 object-cover"
             />
@@ -33,7 +33,7 @@ export function ClubInfo() {
 
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <img
-              src="/631526694_893701413413771_3552954737472091520_n.jpg"
+              src="/musica.png"
               alt="Mesa de Ping Pong"
               className="w-full h-48 object-cover"
             />
@@ -50,7 +50,7 @@ export function ClubInfo() {
 
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <img
-              src="/631431591_893588813425031_5944325923659499527_n.jpg"
+              src="/arte.png"
               alt="Jugando Ping Pong"
               className="w-full h-48 object-cover"
             />
